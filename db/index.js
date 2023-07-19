@@ -1,4 +1,4 @@
-import PG from 'pg'
+import PG from "pg";
 const Pool = PG.Pool;
 
 export const pool = new Pool({

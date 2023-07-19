@@ -12,7 +12,6 @@ export async function getApis() {
         if (fetchResponse !== undefined) {
             try {
                 const json = await fetchResponse.json()
-                console.log('parsedJSON',json)
                 updateApiResponse(api.api_id, json, true, 200, true);
             } catch (e) {
                 updateApiResponse(api.api_id, {"status":"API down"}, false, 400, false);
