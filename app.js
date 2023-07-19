@@ -2,14 +2,11 @@ import express from "express";
 import morgan from "morgan";
 import { router } from "./routes/index.js";
 import cors from "cors";
-import { sendEvent } from "./routes/sse.js";
-// import compression from "compression";
 
 export const app = express();
 const PORT = process.env.port || 3001;
 
 app.use(cors());
-// app.use(compression());
 app.use(morgan("dev"));
 app.use(express.static("public"));
 app.use(express.json());
@@ -37,7 +34,7 @@ app.get("/sse", (req, res) => {
         id: sseId,
       })}\n\n`
     ); // res.write() instead of res.send()
-  }, 4000);
+  }, 10000);
 
   // If client closes connection, stop sending events
   res.on("close", () => {
