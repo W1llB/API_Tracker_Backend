@@ -20,6 +20,7 @@ app.get("/sse", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders(); // flush the headers to establish SSE with client
+  console.log("client connected");
 
   let counter = 0;
   let interValID = setInterval(() => {
