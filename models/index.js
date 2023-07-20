@@ -8,6 +8,7 @@ export async function getApis() {
 
 /* Create a new API entry */
 export async function createApi(api) {
+  console.log("post");
   if (api.api_url.length <= 0 || api.api_name.length <= 0) {
     return undefined;
   }

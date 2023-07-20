@@ -12,10 +12,14 @@ router.get("/", async function (req, res) {
 
 router.post("/", async function (req, res) {
   /* test for empty body */
+  console.log("post1");
+
+  console.log(req.body);
   if (JSON.stringify(req.body) === "{}") {
     res.status(400);
     return res.json({ success: false });
   }
+
   const result = await createApi(req.body);
   if (result == undefined) {
     res.status(400);
