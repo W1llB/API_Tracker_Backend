@@ -1,51 +1,52 @@
-import { query } from '../db/index.js';
-import fetch from "node-fetch";
+import { query } from "../db/index.js";
 
 /* The initial request to load all APIs and populate their responses */
 export async function getApis() {
-    const response = await query(`SELECT * FROM API_LIST INNER JOIN API_RESPONSE ON api_list.api_id=api_response.api_id`);
-
-    let api;
-
-    for(api of response.rows) {
-        let fetchResponse = await fetch(api.api_url);
-        if (fetchResponse !== undefined) {
-            try {
-                const json = await fetchResponse.json()
-                updateApiResponse(api.api_id, json, true, 200, true);
-            } catch (e) {
-                updateApiResponse(api.api_id, {"status":"API down"}, false, 400, false);
-            }
-            
-        }
-    }
-
-
-    const updatedResponse = await query(`SELECT * FROM API_LIST INNER JOIN API_RESPONSE ON api_list.api_id=api_response.api_id`);
-    return updatedResponse.rows;
+  const response = await query(`SELECT * FROM api_list;`);
+  return response.rows;
 }
-
-
 
 /* Create a new API entry */
 export async function createApi(api) {
-    if(api.api_url.length <= 0 || api.api_name.length <= 0){ 
-        return undefined;
-    }
-    const response = await query(`INSERT INTO API_LIST (api_name, api_url, tags, doclink) VALUES ($1, $2, $3, $4) RETURNING *`, [api.api_name, api.api_url, api.tags, api.doclink]);
-    const response2 = await query(`INSERT INTO API_RESPONSE (api_id) VALUES ($1) RETURNING *`,[response.rows[0].api_id]);
-    return response.rows[0];
+  if (api.api_url.length <= 0 || api.api_name.length <= 0) {
+    return undefined;
+  }
+  const response = await query(
+    `INSERT into api_list (user_id, api_name, endpoint_url, docs_url, tags, status, response_code, last_downtime ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`,
+    [
+      api.user_id,
+      api.api_name,
+      api.endpoint_url,
+      api.docs_url,
+      api.tags,
+      api.status,
+      api.responseCode,
+      api.last_downtime,
+    ]
+  );
+  return response.rows[0];
 }
 
 /* Update the API table */
-export async function updateApiResponse(id, json, get_success, response_code, response_status) {
-    const response = await query(`UPDATE API_RESPONSE SET json=$1, get=$2, response_code=$3, response=$4 WHERE api_id=$5 RETURNING *`, [json, get_success, response_code, response_status, id]);
-    return response.rows;
+export async function updateApiResponse(
+  apiId,
+  status,
+  responseCode,
+  lastDowntime
+) {
+  const response = await query(
+    `UPDATE api_list SET status=$1, response_code=$2, last_downtime=$3 WHERE api_id=$5 RETURNING *`,
+    [status, responseCode, lastDowntime, apiId]
+  );
+  return response.rows;
 }
 
 //delete from an entry from both tables
-export async function deleteApi(id){
-    let response = await query("DELETE FROM api_response WHERE api_id=$1 RETURNING *", [id]);
-    response = await query("DELETE FROM API_LIST WHERE api_id=$1 RETURNING *", [id]);
-    return response.rows;
+export async function deleteApi(apiId) {
+  console.log(apiId);
+  let response = await query(
+    "DELETE FROM api_list WHERE api_id=$1 RETURNING *;",
+    [apiId]
+  );
+  return response.rows;
 }
